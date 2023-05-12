@@ -2,29 +2,29 @@ import { useSelector, useDispatch } from 'react-redux';
 import css from './Form.module.css';
 import { getContacts } from 'redux/selectors';
 import { addContact } from 'redux/contactsSlice';
-import { nanoid } from 'nanoid';
 
 export function Form() {
   const dispatch = useDispatch();
   const contacts = useSelector(getContacts);
 
-  function handleSubmit(values, { resetForm }) {
-    const newContact = {
-      id: nanoid(),
-      name: values.name,
-      number: values.number,
-    };
+  const checkingForMatches = value => {
+    return contacts.some(el => el.name.toLowerCase() === value.toLowerCase());
+  };
 
-    if (
-      contacts.find(
-        contact => contact.name.toLowerCase() === newContact.name.toLowerCase()
-      )
-    ) {
-      return Error(`${newContact.name} is already in contacts`);
+  const handleSubmit = evt => {
+    evt.preventDefault();
+    const {
+      target: { name, number },
+    } = evt;
+
+    if (checkingForMatches(name.value)) {
+      alert(`${name.value} is already in contacts`);
+      return;
     }
-    dispatch(addContact(newContact));
-    resetForm();
-  }
+    dispatch(addContact(name.value, number.value));
+    name.value = '';
+    number.value = '';
+  };
 
   return (
     <>
